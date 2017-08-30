@@ -1,0 +1,27 @@
+{
+  "name": "speaktome-web",
+  "version": "0.1.0",
+  "description": "JavaScript modules for Mozilla's cloud speech recognition API",
+  "scripts": {
+    "bundle": "browserify src/stm.js src/stm_vad.js -s SpeakToMe -o build/stm.js",
+    "uglify": "uglifyjs build/stm.js -cm > build/stm.min.js",
+    "web": "uglifyjs src/stm.js src/stm_vad.js -cm > build/stm_web.min.js",
+    "build": "npm run bundle && npm run uglify && npm run web && cp src/webrtc_vad.js build/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+	},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/speaktome-web.git"
+  },
+  "keywords": [
+    "Mozilla",
+    "speech",
+    "speech recognition",
+    "STT"
+  ],
+  "license": "MPL",
+  "bugs": {
+    "url": "https://github.com/mozilla/speaktome-web/issues"
+  },
+  "homepage": "https://github.com/mozilla/speaktome-web#readme"
+}

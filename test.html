@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SpeakToMe Component - Basic</title>
+    <meta name="description" content="Example usage of SpeakToMe API component."></meta>
+    <style type="text/css">
+      body {
+        font-family: -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "Roboto", "Oxygen",
+          "Ubuntu", "Cantarell", "Fira Sans",
+          "Droid Sans", "Helvetica Neue", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+
+    <section>
+      <h1>SpeakToMe - Speech Recognition API from Mozilla</h1>
+
+      <section>
+        <input class="test" type="text"></input>
+        <button id="mic">Listen</button>
+      </section>
+
+      <section>
+        <div class="results">
+        </div>
+      </section>
+    </section>
+
+<script src="src/stm.js"></script>
+<script src="src/stm_vad.js"></script>
+<script src="src/webrtc_vad.js"></script>
+<!--
+<script src="build/stm_web.min.js"></script>
+<script src="build/webrtc_vad.js"></script>
+-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Initialize
+  var stm = SpeakToMe({
+    listener: listener
+  });
+
+  // Helper for speech synth
+  function say(text) {
+    return new Promise(function(resolve, reject) {
+      var synth = window.speechSynthesis;
+      var utterThis = new SpeechSynthesisUtterance(text);
+      utterThis.onend = function() {
+        resolve();
+      };
+      synth.speak(utterThis);
+    });
+  }
+
+  var testcomponents = {
+    listen: function(test) {
+      return new Promise(function(r, e) {
+        stm.setListener(msg => {
+          msg.state == 'listening' ? r() : e();
+        });
+        stm.listen();
+      });
+    },
+    voice: function(test, text) {
+      return new Promise(function(r, e) {
+        // Mock
+        if (1) {
+          var stmResults = test.name == 'no voice' ? [] :
+            [ { confidence: 0.8, text: text.toUpperCase()} ];
+          stm.stop();
+
+          if (validateResults(stmResults, test.results)) {
+            console.log('Test passed', test.name, test, stmResults)
+            r(stmResults);
+          }
+          else {
+            console.log('Test failed', test.name, test, stmResults)
+            e('STM results did not match expected results', test, stmResults);
+          }
+        }
+        // Real
+        else {
+          stm.setListener((msg) => {
+            if (msg.state != 'result') {
+              return;
+            }
+
+            var stmResults = msg.data;
+            if(validateResults(stmResults, test.results)) {
+              console.log('Test passed', test.name, test, stmResults)
+              r(msg.data);
+            }
+            else {
+              console.log('Test failed', test.name, test, stmResults)
+              e('STM results did not match expected results', test, stmResults);
+            }
+          });
+          say(text).then(function() {
+            console.log('said!', text);
+          });
+        }
+      });
+    },
+    stop: function(test) {
+      return new Promise(function(r, e) {
+        console.log('test.stop()');
+        stm.stopListening();
+      });
+    }
+  };
+
+  /*
+
+  add config option for
+
+    1) matched
+    2) matched and top confidence result
+    3) matched and only result
+
+  */
+  function validateResults(stmResults, expectedResults) {
+    if (expectedResults.length == 0 && stmResults == 0) {
+      return true;
+    }
+
+    return stmResults.some(function(stmResult) {
+      return expectedResults.some(function(expectedText) {
+        return stmResult.text === expectedText.toUpperCase();
+      });
+    });
+  }
+
+  function runTest(test) {
+    return new Promise((r, e) => {
+      // kick off listening before each test.
+      // TODO: added because all tests had it.
+      // need to determine if case for test w/ no listen
+      test.components.unshift(['listen']);
+
+      // Make array of functions that each return the test component
+      // as a promise w/ test component parameters applied to it.
+      var promises = test.components.map((c) => {
+        return () => {
+          return testcomponents[c[0]].apply(testcomponents[c[0]], [test].concat(c[1]));
+        };
+      });
+
+      // Execute the test components (promises) serially
+      (promises.reduce((previousPromise, currentPromise) => {
+        return previousPromise.then(() => {
+          return currentPromise();
+        });
+      }, Promise.resolve())).then(() => console.log('test finished', test.name));
+    });
+  }
+
+  function runTests(tests) {
+    // Make array of functions that return promises
+    var promises = tests.map((test) => {
+      return () => {
+        console.log('inner func', test.name);
+        //console.log('Running test', test.name);
+        return runTest(test);
+      };
+    });
+
+    // Execute the tests serially
+    (promises.reduce((prev, current) => {
+      //console.log(prev, current)
+      console.log('outer');
+      return prev.then(result => {
+        console.log('inner', result);
+        return current().then();
+      });
+    }, Promise.resolve())).then(() => console.log('done all tests'));
+
+    /*
+		const promiseSerial = funcs =>
+			funcs.reduce((promise, func) =>
+				promise.then(result => func().then(Array.prototype.concat.bind(result))),
+		    Promise.resolve([]))
+
+		promiseSerial(promises)
+  		.then(console.log.bind(console))
+			.catch(console.error.bind(console))
+    */
+  }
+
+  /*
+  // everything 2x also, eg: silence to timeout/vad, twice
+  var tests = [
+    'silence timeout': {},
+    'silence stop': {},
+    'voice vad': {},
+    'voice stop voice vad': {},
+    'voice timeout no vad': {},
+    'voice vad 2x': {},
+    'voice vad 3x': {},
+  ];
+  */
+
+  // Tests
+  var tests = [{
+    name: 'voice "test"',
+    components: [
+      ['voice', ['test']]
+    ],
+    results: [
+      'test'
+    ]
+  }, {
+    name: 'no voice',
+    components: [
+      ['voice', ['']]
+    ],
+    results: [] 
+  }];
+
+  //runTest(tests[1])
+  //runTests(tests)
+
+});
+</script>
+</body>
+</html>
