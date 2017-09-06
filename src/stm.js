@@ -3,8 +3,6 @@
 TODO:
 
 * fix VAD re-use
-* add support for continuous listening
-* break out API separate from web, for node env module
 
 states/events
 
@@ -12,7 +10,6 @@ states/events
 * listening
 * processing
 * sending
-* waitingonserver
 * result
 
 

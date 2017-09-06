@@ -4,12 +4,17 @@ function SpeakToMeVAD(options) {
   var config = {
     listener: function() {
       console.error('SpeakToMeVAD: No listener configured!');
-    }
+    },
+    maxSilence: 500
   };
 
   if (options) {
     if (options['listener'] != undefined) {
       config.listener = options.listener;
+    }
+    if (options['maxSilence'] != undefined) {
+      console.log('MAXSILDNECE', options.maxSilence)
+      config.maxSilence = options.maxSilence;
     }
   }
 
@@ -54,7 +59,7 @@ function SpeakToMeVAD(options) {
   // minimum of voice (in milliseconds) that should be captured to be considered voice
   var minvoice = 250;
   // max amount of silence (in milliseconds) that should be captured to be considered end-of-speech
-  var maxsilence = 1500;
+  var maxsilence = config.maxSilence;
   // max amount of capturing time (in seconds)
   var maxtime = 6;
 
