@@ -1,5 +1,5 @@
 {
-  "name": "speaktome-web",
+  "name": "voicefillapi",
   "version": "0.1.0",
   "description": "JavaScript modules for Mozilla's cloud speech recognition API",
   "scripts": {
