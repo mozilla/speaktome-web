@@ -1,4 +1,4 @@
-# SpeakToMe
+# VoiceFill API
 
 <!--
 [![Version](http://img.shields.io/npm/v/speaktomejs.svg?style=flat-square)](https://npmjs.org/package/speaktomejs)
