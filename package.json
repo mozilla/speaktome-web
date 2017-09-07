@@ -8,7 +8,7 @@
     "web": "uglifyjs src/stm.js src/stm_vad.js src/webrtc_vad.js -cm > build/stm_web.min.js",
     "build": "npm run bundle && npm run uglify && npm run web",
     "test": "echo \"Error: no test specified\" && exit 1"
-	},
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/speaktome-web.git"
@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/mozilla/speaktome-web/issues"
   },
-  "homepage": "https://github.com/mozilla/speaktome-web#readme"
+  "homepage": "https://github.com/mozilla/speaktome-web#readme",
+  "devDependencies": {
+    "browserify": "^14.4.0",
+    "uglify-js": "^3.0.28"
+  }
 }
