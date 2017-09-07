@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "JavaScript modules for Mozilla's cloud speech recognition API",
   "scripts": {
-    "bundle": "browserify src/stm.js src/stm_vad.js src/webrtc_vad.js --noparse=src/webrtc_vad.js -s SpeakToMe -o build/stm.js",
+    "bundle": "browserify src/stm.js src/stm_vad.js src/webrtc_vad.js --noparse=src/webrtc_vad.js -s SpeakToMe -o build/stm.js -p browserify-derequire",
     "uglify": "uglifyjs build/stm.js -cm > build/stm.min.js",
     "web": "uglifyjs src/stm.js src/stm_vad.js src/webrtc_vad.js -cm > build/stm_web.min.js",
     "build": "npm run bundle && npm run uglify && npm run web",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/mozilla/speaktome-web#readme",
   "devDependencies": {
     "browserify": "^14.4.0",
-    "uglify-js": "^3.0.28"
+    "uglify-js": "^3.0.28",
+    "browserify-derequire": "^0.9.4"
   }
 }
