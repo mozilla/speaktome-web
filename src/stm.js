@@ -303,13 +303,17 @@ function SpeakToMe(options) {
     }
   }
 
+  function getmediaStream() {
+    return mediaStream;
+  }
   // Public API
   return {
     listen: listen,
     stop: stopListening,
     setListener: function(l) {
       config.listener = l;
-    }
+    },
+    getmediaStream : getmediaStream
   };
 
 }
