@@ -289,6 +289,7 @@ function SpeakToMe(options) {
     sourceNode.disconnect(scriptprocessor);
     sourceNode.disconnect(analyzerNode);
     analyzerNode.disconnect(outputNode);
+    scriptprocessor.disconnect(audioContext.destination);
   }
 
   function updateState(msg) {
