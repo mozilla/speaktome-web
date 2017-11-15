@@ -439,6 +439,9 @@ var RECORDING_TIMEOUT = 3000;
 var RECORDING_BITS_PER_SECOND = 16000;
 
 var RECORDING_MIME_TYPE = 'audio/ogg';
+if (!MediaRecorder.isTypeSupported(RECORDING_MIME_TYPE)){
+  RECORDING_MIME_TYPE = 'audio/webm;codecs=opus';
+}
 
 (function initCompat() {
   // Older browsers might not implement mediaDevices at all, so we set an empty object first
@@ -597,6 +600,7 @@ function SpeakToMe(options) {
       // create a javascript node
       scriptprocessor = audioContext.createScriptProcessor(
           bufferSize, 1, 1);
+      scriptprocessor.connect(audioContext.destination);
 
       // Send audio events to VAD, which will call onVADComplete
       // when either voice input ends, none is detected, or neither (timeout).
@@ -702,6 +706,7 @@ function SpeakToMe(options) {
     sourceNode.disconnect(scriptprocessor);
     sourceNode.disconnect(analyzerNode);
     analyzerNode.disconnect(outputNode);
+    scriptprocessor.disconnect(audioContext.destination);
   }
 
   function updateState(msg) {
