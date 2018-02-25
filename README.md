@@ -28,7 +28,7 @@ var stm = SpeakToMe({
 
 function listener(msg) {
 	console.log('listener', msg);
-
+}
 stm.listen();
 
 </script>
