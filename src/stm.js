@@ -15,7 +15,7 @@ states/events
 
 */
 
-var STT_SERVER_URL = 'https://speaktome.services.mozilla.com';
+var STT_SERVER_URL = 'https://speech.mozilla-iot.pw/';
 
 var RECORDING_TIMEOUT = 3000;
 
