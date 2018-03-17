@@ -15,7 +15,7 @@ states/events
 
 */
 
-var STT_SERVER_URL = 'http://52.53.97.165:9002';
+var STT_SERVER_URL = 'https://speech.mozilla-iot.pw/';
 
 var RECORDING_TIMEOUT = 3000;
 
