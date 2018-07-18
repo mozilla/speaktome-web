@@ -19,7 +19,9 @@
       <h1>SpeakToMe - Mozilla Cloud-based Speech Recognition API</h1>
 
       <section>
-        <input class="test" type="text"></input>
+        <label>Click [listen] and start speaking...</label>
+        <br><br>
+        <input placeholder="Type to test with voice synth" class="test" type="text"></input>
         <button id="mic">Listen</button>
       </section>
 
@@ -29,11 +31,6 @@
       </section>
     </section>
 
-<!--
-<script src="src/stm.js"></script>
-<script src="src/stm_vad.js"></script>
-<script src="src/webrtc_vad.js"></script>
--->
 <script src="build/stm_web.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
