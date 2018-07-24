@@ -11,6 +11,7 @@ states/events
 * processing
 * sending
 * result
+* error
 
 
 */
@@ -141,7 +142,8 @@ function SpeakToMe(options) {
       .getUserMedia(constraints)
       .then(onStream)
       .catch(function(err) {
-        console.error(err);
+        updateState({ state: 'error', error: err});
+        updateState({ state: 'ready'});
       });
   }
 
@@ -270,11 +272,12 @@ function SpeakToMe(options) {
         updateState({ state: 'ready'});
       }
       else {
-        console.error('Error parsing JSON response:', error);
+        throw new Error('Receive bad status:', json.status);
       }
     })
     .catch(function(error) {
-      console.error('Fetch error:', error);
+      updateState({ state: 'error', error: error});
+      updateState({ state: 'ready'});
     });
   }
 
