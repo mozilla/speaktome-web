@@ -275,7 +275,7 @@ function SpeakToMe(options) {
   function sendRecordingToServer(blob) {
     updateState({ state: 'sending'});
 
-    const headers = {
+    var headers = {
       'Accept-Language-STT': config.language,
       'Store-Sample': config.storeSample ? '1' : '0',
       'Store-Transcription': config.storeTranscription ? '1' : '0',
@@ -288,7 +288,7 @@ function SpeakToMe(options) {
     fetch(config.serverURL, {
       method: "POST",
       body: blob,
-      headers,
+      headers: headers,
     })
     .then(function(response) {
       return response.json();
