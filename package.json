@@ -1,6 +1,6 @@
 {
   "name": "speaktome-api",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "JavaScript modules for Mozilla's cloud speech recognition API",
   "scripts": {
     "bundle": "browserify src/stm.js src/stm_vad.js src/webrtc_vad.js --noparse=src/webrtc_vad.js -s SpeakToMe -o build/stm.js -p browserify-derequire",
