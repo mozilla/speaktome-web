@@ -433,7 +433,7 @@ states/events
 
 */
 
-var STT_SERVER_URL = 'https://speaktome-2.stage.mozaws.net/';
+var STT_SERVER_URL = 'https://speaktome-2.services.mozilla.com/';
 
 var RECORDING_TIMEOUT = 3000;
 
