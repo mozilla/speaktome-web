@@ -33,71 +33,70 @@
 
 <script src="build/stm_web.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Initialize
-  var stm = SpeakToMe({
-    listener: listener
-  });
-
-  // Mic/Stop button
-  var button = document.querySelector('#mic');
-
-  // Set a handler for results
-  function listener(msg) {
-    //console.log('listener', msg);
-
-    if (msg.state == 'result') {
-      // Display results
-      var results = msg.data.sort(function(a, b) { a.confidence - b.confidence; });
-      var resultsView = document.querySelector('.results');
-      resultsView.innerHTML = '';
-      results.forEach(function(result) {
-        resultsView.innerHTML += '"' + result.text +
-          '", confidence: ' + result.confidence + '<br>';
-      });
-    }
-    else if (msg.state == 'ready') {
-      button.innerText = "Listen";
-      button.listening = false;
-    }
-  }
-
-  // Helper for speech synth
-  function say(text) {
-    return new Promise(function(resolve, reject) {
-      var synth = window.speechSynthesis;
-      var utterThis = new SpeechSynthesisUtterance(text);
-      utterThis.onend = function() {
-        resolve();
-      };
-      synth.speak(utterThis);
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize
+    var stm = SpeakToMe({
+      listener: listener
     });
-  }
 
-  function onMicClick() {
-    // Manual stop by user
-    if (button.listening) {
-      button.listening = false;
-      stm.stop();
-      button.innerText = "Listen";
-    }
-    // User initiating listen
-    else {
-      stm.listen();
-      button.innerText = "Stop Listening (or just stop speaking)";
-      button.listening = true;
-      // testing
-      var testText = document.querySelector('.test').value;
-      if (testText) {
-        setTimeout(function() {
-          say(document.querySelector('.test').value);
-        }, 500);
+    // Mic/Stop button
+    var button = document.querySelector('#mic');
+
+    // Set a handler for results
+    function listener(msg) {
+      //console.log('listener', msg);
+
+      if (msg.state == 'result') {
+        // Display results
+        var results = msg.data.sort(function(a, b) { a.confidence - b.confidence; });
+        var resultsView = document.querySelector('.results');
+        resultsView.innerHTML = '';
+        results.forEach(function(result) {
+          resultsView.innerHTML += '"' + result.text +
+            '", confidence: ' + result.confidence + '<br>';
+        });
+      }
+      else if (msg.state == 'ready') {
+        button.innerText = "Listen";
+        button.listening = false;
       }
     }
-  }
-  button.addEventListener('click', onMicClick);
-});
+
+    // Helper for speech synth
+    function say(text) {
+      return new Promise(function(resolve, reject) {
+        var synth = window.speechSynthesis;
+        var utterThis = new SpeechSynthesisUtterance(text);
+        utterThis.onend = function() {
+          resolve();
+        };
+        synth.speak(utterThis);
+      });
+    }
+
+    function onMicClick() {
+      // Manual stop by user
+      if (button.listening) {
+        button.listening = false;
+        stm.stop();
+        button.innerText = "Listen";
+      }
+      // User initiating listen
+      else {
+        stm.listen();
+        button.innerText = "Stop Listening (or just stop speaking)";
+        button.listening = true;
+        // testing
+        var testText = document.querySelector('.test').value;
+        if (testText) {
+          setTimeout(function() {
+            say(document.querySelector('.test').value);
+          }, 500);
+        }
+      }
+    }
+    button.addEventListener('click', onMicClick);
+  });
 </script>
 </body>
 </html>

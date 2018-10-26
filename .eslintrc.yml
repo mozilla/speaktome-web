@@ -1,0 +1,23 @@
+env:
+  browser: true
+  es6: true
+  node: true
+
+extends:
+  - eslint:recommended
+  - plugin:mozilla/recommended
+
+plugins:
+  - mozilla
+
+globals:
+  SpeakToMeVAD: true
+  SpeakToMe: true
+
+rules:
+  eqeqeq: error
+  no-console: off # TODO: Set back to "warn"
+  no-unused-vars: [error, {vars: all, args: none, ignoreRestSiblings: false}]
+  no-warning-comments: warn
+  prefer-const: error
+  object-shorthand: off
