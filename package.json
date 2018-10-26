@@ -3,9 +3,11 @@
   "version": "0.3.0",
   "description": "JavaScript modules for Mozilla's cloud speech recognition API",
   "scripts": {
-    "bundle": "browserify src/stm.js src/stm_vad.js src/webrtc_vad.js --noparse=src/webrtc_vad.js -s SpeakToMe -o build/stm.js -p browserify-derequire",
+    "format": "prettier 'src/*.js' --tab-width=2 --arrow-parens=always --trailing-comma=es5 --no-bracket-spacing --write",
+    "lint": "eslint src",
+    "bundle": "browserify src/stm.js src/stm_vad.js node_modules/webrtcvad_js/webrtc_vad.js --noparse=node_modules/webrtcvad_js/webrtc_vad.js -s SpeakToMe -o build/stm.js -p browserify-derequire",
     "uglify": "uglifyjs build/stm.js -cm > build/stm.min.js",
-    "web": "uglifyjs src/stm.js src/stm_vad.js src/webrtc_vad.js -cm > build/stm_web.min.js",
+    "web": "uglifyjs src/stm.js src/stm_vad.js node_modules/webrtcvad_js/webrtc_vad.js -cm > build/stm_web.min.js",
     "build": "npm run bundle && npm run uglify && npm run web",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,16 +19,25 @@
     "Mozilla",
     "speech",
     "speech recognition",
+    "speak to me",
+    "speaktome",
     "STT"
   ],
-  "license": "MPL",
+  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/mozilla/speaktome-web/issues"
   },
   "homepage": "https://github.com/mozilla/speaktome-web#readme",
   "devDependencies": {
-    "browserify": "^14.4.0",
+    "browserify": "^16.2.3",
     "browserify-derequire": "^0.9.6",
-    "uglify-js": "^3.4.5"
+    "eslint": "^5.7.0",
+    "eslint-plugin-mozilla": "^0.16.1",
+    "eslint-plugin-no-unsanitized": "^3.0.2",
+    "prettier": "^1.14.3",
+    "uglify-js": "^3.4.9"
+  },
+  "dependencies": {
+    "webrtcvad_js": "^1.0.0"
   }
 }

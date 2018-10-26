@@ -1,19 +1,19 @@
 // Webrtc_Vad integration
+// eslint-disable-next-line no-unused-vars
 function SpeakToMeVAD(options) {
-
   var config = {
     listener: function() {
-      console.error('SpeakToMeVAD: No listener configured!');
+      console.error("SpeakToMeVAD: No listener configured!");
     },
-    maxSilence: 500
+    maxSilence: 500,
   };
 
   if (options) {
-    if (options['listener'] != undefined) {
+    if (typeof options.listener !== "undefined") {
       config.listener = options.listener;
     }
-    if (options['maxSilence'] != undefined) {
-      console.log('MAXSILDNECE', options.maxSilence)
+    if (typeof options.maxSilence !== "undefined") {
+      console.log("MAXSILENCE", options.maxSilence);
       config.maxSilence = options.maxSilence;
     }
   }
@@ -22,20 +22,22 @@ function SpeakToMeVAD(options) {
   webrtc_main();
 
   var webrtc_setmode = Module.cwrap("setmode", "number", ["number"]);
-  // set_mode defines the aggressiveness degree of the voice activity detection algorithm
-  // for more info see: https://github.com/mozilla/gecko/blob/central/media/webrtc/trunk/webrtc/common_audio/vad/vad_core.h#L68
+  // set_mode defines the aggressiveness degree of the voice activity
+  // detection algorithm. for more info see:
+  // https://github.com/mozilla/gecko/blob/central/media/webrtc/trunk/webrtc/common_audio/vad/vad_core.h#L68
   webrtc_setmode(3);
 
   var webrtc_process_data = Module.cwrap("process_data", "number", [
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number"
+    "number",
+    "number",
+    "number",
+    "number",
+    "number",
+    "number",
   ]);
 
-  // frame length that should be passed to the vad engine. Depends on audio sample rate
+  // frame length that should be passed to the vad engine. Depends on audio
+  // sample rate. see:
   // https://github.com/mozilla/gecko/blob/central/media/webrtc/trunk/webrtc/common_audio/vad/vad_core.h#L106
   var sizeBufferVad = 480;
   //
@@ -43,9 +45,9 @@ function SpeakToMeVAD(options) {
   //
   var leftovers = 0;
   //
-  var finishedVoice = false;
-  //
   var samplesvoice = 0;
+  //
+  var samplessilence = 0;
   //
   var touchedvoice = false;
   //
@@ -56,9 +58,11 @@ function SpeakToMeVAD(options) {
   var dtantesmili = Date.now();
   //
   var done = false;
-  // minimum of voice (in milliseconds) that should be captured to be considered voice
+  // minimum of voice (in milliseconds) that should be captured to be considered
+  // voice
   var minvoice = 250;
-  // max amount of silence (in milliseconds) that should be captured to be considered end-of-speech
+  // max amount of silence (in milliseconds) that should be captured to be
+  // considered end-of-speech
   var maxsilence = config.maxSilence;
   // max amount of capturing time (in seconds)
   var maxtime = 6;
@@ -81,11 +85,7 @@ function SpeakToMeVAD(options) {
     var nDataBytes = buffer_pcm.length * buffer_pcm.BYTES_PER_ELEMENT;
     var dataPtr = Module._malloc(nDataBytes);
     // Copy data to Emscripten heap (directly accessed from Module.HEAPU8)
-    var dataHeap = new Uint8Array(
-      Module.HEAPU8.buffer,
-      dataPtr,
-      nDataBytes
-    );
+    var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
     dataHeap.set(new Uint8Array(buffer_pcm.buffer));
     // Call function and get result
     var result = webrtc_process_data(
@@ -109,13 +109,8 @@ function SpeakToMeVAD(options) {
   }
 
   function onAudioProcessingEvent(e) {
-    var buffer_pcm = new Int16Array(
-      e.inputBuffer.getChannelData(0).length
-    );
-    floatTo16BitPCM(
-      buffer_pcm,
-      e.inputBuffer.getChannelData(0)
-    );
+    var buffer_pcm = new Int16Array(e.inputBuffer.getChannelData(0).length);
+    floatTo16BitPCM(buffer_pcm, e.inputBuffer.getChannelData(0));
     // algorithm used to determine if the user stopped speaking or not
     for (
       var i = 0;
@@ -132,10 +127,7 @@ function SpeakToMeVAD(options) {
         if (leftovers > 0) {
           // we have this.leftovers from previous array
           end = end - this.leftovers;
-          buffer_vad.set(
-            buffer_pcm.slice(start, end),
-            leftovers
-          );
+          buffer_vad.set(buffer_pcm.slice(start, end), leftovers);
           leftovers = 0;
         } else {
           // send to the vad
@@ -164,9 +156,7 @@ function SpeakToMeVAD(options) {
         if (touchedvoice && touchedsilence) {
           done = true;
           onComplete("finishedvoice");
-        }
-        // TODO: should be an else here, yah?
-        else if ((dtdepois - dtantes) / 1000 > maxtime) {
+        } else if ((dtdepois - dtantes) / 1000 > maxtime) {
           done = true;
           if (touchedvoice) {
             onComplete("timeout");
@@ -174,6 +164,7 @@ function SpeakToMeVAD(options) {
             onComplete("novoice");
           }
         }
+        // TODO: should be an else here, yah?
       }
     }
   }
@@ -181,8 +172,8 @@ function SpeakToMeVAD(options) {
   function onComplete(why) {
     try {
       config.listener(why);
-    } catch(ex) {
-      console.log('SpeakToMe_VAD: onCompleteCallback exception', ex);
+    } catch (ex) {
+      console.log("SpeakToMeVAD: onCompleteCallback exception:", ex);
     }
 
     // Auto-reset for next input
@@ -195,11 +186,11 @@ function SpeakToMeVAD(options) {
   // Public
   return {
     reset: reset,
-    onAudioProcessingEvent: onAudioProcessingEvent
+    onAudioProcessingEvent: onAudioProcessingEvent,
   };
 }
 
-if (typeof(module) != "undefined") {
+if (typeof module !== "undefined") {
   module.exports = SpeakToMe;
 }
 
@@ -230,19 +221,20 @@ var Module = {
     this.totalDependencies = Math.max(this.totalDependencies, left);
     Module.setStatus(
       left
-      ? "Preparing... (" +
-      (this.totalDependencies - left) +
-      "/" +
-      this.totalDependencies +
-      ")"
-      : "All downloads complete."
+        ? "Preparing... (" +
+          (this.totalDependencies - left) +
+          "/" +
+          this.totalDependencies +
+          ")"
+        : "All downloads complete."
     );
-  }
+  },
 };
 
 Module.setStatus("Loading webrtc_vad...");
 window.onerror = function(event) {
-  // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+  // TODO: do not warn on ok events like simulating an infinite loop or
+  // exitStatus
   Module.setStatus("Exception thrown, see JavaScript console");
   Module.setStatus = function(text) {
     if (text) {
@@ -251,6 +243,6 @@ window.onerror = function(event) {
   };
 };
 Module.noInitialRun = true;
-Module["onRuntimeInitialized"] = function() {
+Module.onRuntimeInitialized = function() {
   Module.setStatus("Webrtc_vad and SpeakToMeVad loaded");
 };
