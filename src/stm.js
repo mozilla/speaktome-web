@@ -64,13 +64,17 @@ function SpeakToMe(options) {
     timeout: RECORDING_TIMEOUT,
     continuous: false,
     serverURL: STT_SERVER_URL,
-    listener: null
+    listener: null,
+    language: 'en-US',
+    productTag: null,
+    storeSample: false,
+    storeTranscription: false,
   };
 
   // Caller options
-  if (options) {
-    if (options.vad === false) {
-      config.vad = false;
+  if (typeof options === 'object') {
+    if (typeof options.vad === 'boolean') {
+      config.vad = options.vad;
     }
     if (options.timeout) {
       // TODO: validate
@@ -78,6 +82,18 @@ function SpeakToMe(options) {
     }
     if (options.listener) {
       config.listener = options.listener;
+    }
+    if (options.language) {
+      config.language = options.language;
+    }
+    if (options.productTag) {
+      config.productTag = options.productTag;
+    }
+    if (typeof options.storeSample === 'boolean') {
+      config.storeSample = options.storeSample;
+    }
+    if (typeof options.storeTranscription === 'boolean') {
+      config.storeTranscription = options.storeTranscription;
     }
   }
 
@@ -259,9 +275,20 @@ function SpeakToMe(options) {
   function sendRecordingToServer(blob) {
     updateState({ state: 'sending'});
 
+    var headers = {
+      'Accept-Language-STT': config.language,
+      'Store-Sample': config.storeSample ? '1' : '0',
+      'Store-Transcription': config.storeTranscription ? '1' : '0',
+    };
+
+    if (config.productTag) {
+      headers['Product-Tag'] = config.productTag;
+    }
+
     fetch(config.serverURL, {
       method: "POST",
-      body: blob
+      body: blob,
+      headers: headers,
     })
     .then(function(response) {
       return response.json();
