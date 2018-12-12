@@ -38,76 +38,75 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Initialize
-    var stm = SpeakToMe({
-      listener: listener
-    });
+    var stm = SpeakToMe();
 
     // Helper for speech synth
     function say(text) {
       return new Promise(function(resolve, reject) {
-	var synth = window.speechSynthesis;
-	var utterThis = new SpeechSynthesisUtterance(text);
-	utterThis.onend = function() {
-	  resolve();
-	};
-	synth.speak(utterThis);
+        var synth = window.speechSynthesis;
+        var utterThis = new SpeechSynthesisUtterance(text);
+        utterThis.onend = function() {
+          resolve();
+        };
+        synth.speak(utterThis);
       });
     }
 
     var testcomponents = {
       listen: function(test) {
-	return new Promise(function(r, e) {
-	  stm.setListener(msg => {
-	    msg.state == 'listening' ? r() : e();
-	  });
-	  stm.listen();
-	});
+        return new Promise(function(r, e) {
+          stm.setListener(msg => {
+            msg.state == 'listening' ? r() : e();
+          });
+          stm.listen();
+        });
       },
       voice: function(test, text) {
-	return new Promise(function(r, e) {
-	  // Mock
-	  if (1) {
-	    var stmResults = test.name == 'no voice' ? [] :
-	      [ { confidence: 0.8, text: text.toUpperCase()} ];
-	    stm.stop();
+        return new Promise(function(r, e) {
+          // Mock
+          if (1) {
+            var stmResults = test.name == 'no voice' ? [] :
+              [ { confidence: 0.8, text: text.toUpperCase()} ];
+            stm.stop();
 
-	    if (validateResults(stmResults, test.results)) {
-	      console.log('Test passed', test.name, test, stmResults)
-	      r(stmResults);
-	    }
-	    else {
-	      console.log('Test failed', test.name, test, stmResults)
-	      e('STM results did not match expected results', test, stmResults);
-	    }
-	  }
-	  // Real
-	  else {
-	    stm.setListener((msg) => {
-	      if (msg.state != 'result') {
-		return;
-	      }
+            if (validateResults(stmResults, test.results)) {
+              console.log('Test passed', test.name, test, stmResults)
+              r(stmResults);
+            }
+            else {
+              console.log('Test failed', test.name, test, stmResults)
+              e('STM results did not match expected results', test, stmResults);
+            }
+          }
+          // Real
+          else {
+            stm.setListener((msg) => {
+              if (msg.state != 'result') {
+                return;
+              }
 
-	      var stmResults = msg.data;
-	      if(validateResults(stmResults, test.results)) {
-		console.log('Test passed', test.name, test, stmResults)
-		r(msg.data);
-	      }
-	      else {
-		console.log('Test failed', test.name, test, stmResults)
-		e('STM results did not match expected results', test, stmResults);
-	      }
-	    });
-	    say(text).then(function() {
-	      console.log('said!', text);
-	    });
-	  }
-	});
+              var stmResults = msg.data;
+              if(validateResults(stmResults, test.results)) {
+                console.log('Test passed', test.name, test, stmResults)
+                r(msg.data);
+              }
+              else {
+                console.log('Test failed', test.name, test, stmResults)
+                e('STM results did not match expected results', test,
+                  stmResults);
+              }
+            });
+            say(text).then(function() {
+              console.log('said!', text);
+            });
+          }
+        });
       },
       stop: function(test) {
-	return new Promise(function(r, e) {
-	  console.log('test.stop()');
-	  stm.stopListening();
-	});
+        return new Promise(function(r, e) {
+          console.log('test.stop()');
+          stm.stopListening();
+        });
       }
     };
 
@@ -122,69 +121,74 @@
     */
     function validateResults(stmResults, expectedResults) {
       if (expectedResults.length == 0 && stmResults == 0) {
-	return true;
+        return true;
       }
 
       return stmResults.some(function(stmResult) {
-	return expectedResults.some(function(expectedText) {
-	  return stmResult.text === expectedText.toUpperCase();
-	});
+        return expectedResults.some(function(expectedText) {
+          return stmResult.text === expectedText.toUpperCase();
+        });
       });
     }
 
     function runTest(test) {
       return new Promise((r, e) => {
-	// kick off listening before each test.
-	// TODO: added because all tests had it.
-	// need to determine if case for test w/ no listen
-	test.components.unshift(['listen']);
+        // kick off listening before each test.
+        // TODO: added because all tests had it.
+        // need to determine if case for test w/ no listen
+        test.components.unshift(['listen']);
 
-	// Make array of functions that each return the test component
-	// as a promise w/ test component parameters applied to it.
-	var promises = test.components.map((c) => {
-	  return () => {
-	    return testcomponents[c[0]].apply(testcomponents[c[0]], [test].concat(c[1]));
-	  };
-	});
+        // Make array of functions that each return the test component
+        // as a promise w/ test component parameters applied to it.
+        var promises = test.components.map((c) => {
+          return () => {
+            return testcomponents[c[0]].apply(testcomponents[c[0]],
+                                              [test].concat(c[1]));
+          };
+        });
 
-	// Execute the test components (promises) serially
-	(promises.reduce((previousPromise, currentPromise) => {
-	  return previousPromise.then(() => {
-	    return currentPromise();
-	  });
-	}, Promise.resolve())).then(() => console.log('test finished', test.name));
+        // Execute the test components (promises) serially
+        (promises.reduce((previousPromise, currentPromise) => {
+          return previousPromise.then(() => {
+            return currentPromise();
+          });
+        }, Promise.resolve())).then(() => {
+          console.log('test finished', test.name);
+        });
       });
     }
 
     function runTests(tests) {
       // Make array of functions that return promises
       var promises = tests.map((test) => {
-	return () => {
-	  console.log('inner func', test.name);
-	  //console.log('Running test', test.name);
-	  return runTest(test);
-	};
+        return () => {
+          console.log('inner func', test.name);
+          //console.log('Running test', test.name);
+          return runTest(test);
+        };
       });
 
       // Execute the tests serially
       (promises.reduce((prev, current) => {
-	//console.log(prev, current)
-	console.log('outer');
-	return prev.then(result => {
-	  console.log('inner', result);
-	  return current().then();
-	});
+        //console.log(prev, current)
+        console.log('outer');
+        return prev.then(result => {
+          console.log('inner', result);
+          return current().then();
+        });
       }, Promise.resolve())).then(() => console.log('done all tests'));
 
       /*
-		  const promiseSerial = funcs =>
-			  funcs.reduce((promise, func) =>
-				  promise.then(result => func().then(Array.prototype.concat.bind(result))),
-		      Promise.resolve([]))
+      const promiseSerial = funcs =>
+        funcs.reduce((promise, func) =>
+          promise.then(result => {
+            func().then(Array.prototype.concat.bind(result));
+          }),
+          Promise.resolve([]))
 
-		  promiseSerial(promises)
-		  .then(console.log.bind(console))
-			  .catch(console.error.bind(console))
+      promiseSerial(promises)
+      .then(console.log.bind(console))
+        .catch(console.error.bind(console))
       */
     }
 
@@ -205,15 +209,15 @@
     var tests = [{
       name: 'voice "test"',
       components: [
-	['voice', ['test']]
+        ['voice', ['test']]
       ],
       results: [
-	'test'
+        'test'
       ]
     }, {
       name: 'no voice',
       components: [
-	['voice', ['']]
+        ['voice', ['']]
       ],
       results: [] 
     }];
