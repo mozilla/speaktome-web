@@ -222,10 +222,10 @@ var Module = {
     Module.setStatus(
       left
         ? "Preparing... (" +
-          (this.totalDependencies - left) +
-          "/" +
-          this.totalDependencies +
-          ")"
+            (this.totalDependencies - left) +
+            "/" +
+            this.totalDependencies +
+            ")"
         : "All downloads complete."
     );
   },

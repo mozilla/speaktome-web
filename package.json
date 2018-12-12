@@ -31,10 +31,10 @@
   "devDependencies": {
     "browserify": "^16.2.3",
     "browserify-derequire": "^0.9.6",
-    "eslint": "^5.7.0",
-    "eslint-plugin-mozilla": "^0.16.1",
+    "eslint": "^5.10.0",
+    "eslint-plugin-mozilla": "^1.0.1",
     "eslint-plugin-no-unsanitized": "^3.0.2",
-    "prettier": "^1.14.3",
+    "prettier": "^1.15.3",
     "uglify-js": "^3.4.9"
   },
   "dependencies": {
