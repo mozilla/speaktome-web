@@ -23,6 +23,8 @@
         <br><br>
         <input placeholder="Type to test with voice synth" class="test" type="text">
         <button id="mic">Listen</button>
+        <select id="language" name="language">
+        </select>
       </section>
 
       <section>
@@ -33,69 +35,105 @@
 
 <script src="build/stm_web.min.js"></script>
 <script>
+  var mic_click;
   document.addEventListener('DOMContentLoaded', function() {
-    // Initialize
-    var stm = SpeakToMe({
-      listener: listener
-    });
 
-    // Mic/Stop button
-    var button = document.querySelector('#mic');
+    // load dropdown
+    let dropdown = document.getElementById('language');
+    dropdown.length = 0;
+    let defaultOption = document.createElement('option');
+    defaultOption.text = 'Choose Language';
+    dropdown.add(defaultOption);
+    dropdown.selectedIndex = 0;
+    const url = 'https://raw.githubusercontent.com/mozilla/speech-proxy/master/languages.json';
 
-    // Set a handler for results
-    function listener(msg) {
-      //console.log('listener', msg);
-
-      if (msg.state == 'result') {
-        // Display results
-        var results = msg.data.sort(function(a, b) { a.confidence - b.confidence; });
-        var resultsView = document.querySelector('.results');
-        resultsView.innerHTML = '';
-        results.forEach(function(result) {
-          resultsView.innerHTML += '"' + result.text +
-            '", confidence: ' + result.confidence + '<br>';
-        });
-      }
-      else if (msg.state == 'ready') {
-        button.innerText = "Listen";
-        button.listening = false;
-      }
-    }
-
-    // Helper for speech synth
-    function say(text) {
-      return new Promise(function(resolve, reject) {
-        var synth = window.speechSynthesis;
-        var utterThis = new SpeechSynthesisUtterance(text);
-        utterThis.onend = function() {
-          resolve();
-        };
-        synth.speak(utterThis);
+    fetch(url)
+      .then(
+        function(response) {
+          if (response.status !== 200) {
+            console.warn('Looks like there was a problem. Status Code: ' +
+              response.status);
+            return;
+          }
+          response.json().then(function(data) {
+            let option;
+            for (let i = 0; i < Object.keys(data).length; i++) {
+              option = document.createElement('option');
+              option.text = Object.values(data)[i];
+              option.value = Object.keys(data)[i];
+              dropdown.add(option);
+            }
       });
     }
+  )
+  .catch(function(err) {
+    console.error('Fetch Error -', err);
+  });
 
-    function onMicClick() {
-      // Manual stop by user
-      if (button.listening) {
-        button.listening = false;
-        stm.stop();
-        button.innerText = "Listen";
-      }
-      // User initiating listen
-      else {
-        stm.listen();
-        button.innerText = "Stop Listening (or just stop speaking)";
-        button.listening = true;
-        // testing
-        var testText = document.querySelector('.test').value;
-        if (testText) {
-          setTimeout(function() {
-            say(document.querySelector('.test').value);
-          }, 500);
-        }
+  // Mic/Stop button
+  var button = document.querySelector('#mic');
+
+  // Set a handler for results
+  function listener(msg) {
+    //console.log('listener', msg);
+
+    if (msg.state == 'result') {
+      // Display results
+      var results = msg.data.sort(function(a, b) { a.confidence - b.confidence; });
+      var resultsView = document.querySelector('.results');
+      resultsView.innerHTML = '';
+      results.forEach(function(result) {
+        resultsView.innerHTML += '"' + result.text +
+          '", confidence: ' + result.confidence + '<br>';
+      });
+    }
+    else if (msg.state == 'ready') {
+      button.innerText = "Listen";
+      button.listening = false;
+    }
+  }
+
+  // Helper for speech synth
+  function say(text) {
+    return new Promise(function(resolve, reject) {
+      var synth = window.speechSynthesis;
+      var utterThis = new SpeechSynthesisUtterance(text);
+      utterThis.onend = function() {
+        resolve();
+      };
+      synth.speak(utterThis);
+    });
+  }
+
+  function onMicClick() {
+    // Initialize
+    let stm = SpeakToMe({
+      listener: listener,
+      language: dropdown.value
+    });
+
+    // Manual stop by user
+    if (button.listening) {
+      button.listening = false;
+      stm.stop();
+      button.innerText = "Listen";
+    }
+    // User initiating listen
+    else {
+      stm.listen();
+      button.innerText = "Stop Listening (or just stop speaking)";
+      button.listening = true;
+      // testing
+      var testText = document.querySelector('.test').value;
+      if (testText) {
+        setTimeout(function() {
+          say(document.querySelector('.test').value);
+        }, 500);
       }
     }
-    button.addEventListener('click', onMicClick);
+  }
+  button.addEventListener('click', onMicClick);
+  mic_click = onMicClick;
   });
 </script>
 </body>
