@@ -33,6 +33,7 @@
 
 <script src="build/stm_web.min.js"></script>
 <script>
+  var mic_click;
   document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     var stm = SpeakToMe({
@@ -96,6 +97,7 @@
       }
     }
     button.addEventListener('click', onMicClick);
+    mic_click = onMicClick;
   });
 </script>
 </body>
