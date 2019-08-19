@@ -11,6 +11,7 @@
     "build": "npm run bundle && npm run uglify && npm run web",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "main": "build/stm_web.min.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/speaktome-web.git"
